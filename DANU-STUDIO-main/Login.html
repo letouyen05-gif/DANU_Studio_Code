@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrustFlow AI - Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --secondary: #9333EA;
+            --accent: #06B6D4;
+            --glass: rgba(255, 255, 255, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.5);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: #0f172a;
+        }
+
+        /* Language Switcher Style */
+        .lang-switch-fixed {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 8px;
+            z-index: 1000;
+        }
+        .lang-btn {
+            cursor: pointer;
+            border: 1px solid var(--glass-border);
+            background: var(--glass);
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 800;
+            color: #1e293b;
+            transition: 0.3s;
+            backdrop-filter: blur(10px);
+        }
+        .lang-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .bg-blobs {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            filter: blur(80px);
+        }
+
+        .blob {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            animation: move 20s infinite alternate;
+        }
+
+        .blob-1 { background: rgba(79, 70, 229, 0.4); top: -100px; left: -100px; }
+        .blob-2 { background: rgba(147, 51, 234, 0.3); bottom: -100px; right: -100px; animation-delay: -5s; }
+        .blob-3 { background: rgba(6, 182, 212, 0.3); top: 50%; left: 50%; animation-delay: -10s; }
+
+        @keyframes move {
+            from { transform: translate(0, 0) scale(1); }
+            to { transform: translate(100px, 100px) scale(1.2); }
+        }
+
+        .login-card {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            padding: 40px;
+            border-radius: 32px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .brand-header { text-align: center; margin-bottom: 30px; }
+
+        .logo-icon {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            width: 50px;
+            height: 50px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            color: white;
+            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3);
+        }
+
+        .brand-name {
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(to right, #1e293b, #475569);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .input-group { margin-bottom: 18px; position: relative; }
+
+        .input-group i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 14px 15px 14px 45px;
+            border-radius: 14px;
+            border: 1px solid #e2e8f0;
+            outline: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: 0.3s;
+            background: rgba(255, 255, 255, 0.6);
+        }
+
+        .input-group input:focus {
+            border-color: var(--primary);
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 14px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-login { background: #1e293b; color: white; margin-top: 10px; }
+        .btn-login:hover { background: #0f172a; transform: translateY(-2px); }
+
+        .divider {
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            font-size: 12px;
+            color: #94a3b8;
+        }
+        .divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: #e2e8f0; }
+        .divider span { padding: 0 10px; }
+
+        .social-row { display: flex; gap: 10px; margin-bottom: 15px; }
+        .social-btn {
+            flex: 1;
+            padding: 10px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .btn-web3 {
+            background: linear-gradient(90deg, #4F46E5, #9333EA, #06B6D4);
+            color: white;
+            font-size: 14px;
+        }
+
+        .footer {
+            margin-top: 25px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+        }
+
+        .footer a { color: #64748b; text-decoration: none; font-weight: 600; }
+        .footer a:hover { color: var(--primary); }
+    </style>
+</head>
+<body>
+
+    <!-- Language Switcher -->
+    <div class="lang-switch-fixed">
+        <button onclick="setLanguage('vi')" class="lang-btn" id="lang-vi">VI</button>
+        <button onclick="setLanguage('en')" class="lang-btn" id="lang-en">EN</button>
+    </div>
+
+    <div class="bg-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <div class="login-card">
+        <div class="brand-header">
+            <div class="logo-icon"><i data-lucide="cpu"></i></div>
+            <h1 class="brand-name">TrustFlow AI</h1>
+            <p data-i18n="brand_sub" style="font-size: 12px; color: #64748b;">Hệ thống xác thực minh bạch</p>
+        </div>
+
+        <!-- FORM ĐĂNG NHẬP -->
+        <form id="loginForm">
+            <div class="input-group">
+                <i data-lucide="mail" size="18"></i>
+                <input type="email" id="email" data-i18n="email_placeholder" placeholder="Email" required>
+            </div>
+            <div class="input-group">
+                <i data-lucide="lock" size="18"></i>
+                <input type="password" id="password" data-i18n="pass_placeholder" placeholder="Mật khẩu" required>
+            </div>
+            <button type="submit" class="btn btn-login">
+                <span data-i18n="btn_login">Đăng nhập</span> <i data-lucide="arrow-right" size="18"></i>
+            </button>
+        </form>
+
+        <div class="divider"><span data-i18n="or">Hoặc</span></div>
+
+        <div class="social-row">
+            <div class="social-btn"><img src="https://cdn-icons-png.flaticon.com/512/2991/2991148.png" width="18"></div>
+            <div class="social-btn"><img src="https://cdn-icons-png.flaticon.com/512/0/747.png" width="18"></div>
+        </div>
+
+        <button class="btn btn-web3">
+            <i data-lucide="wallet" size="18"></i> <span data-i18n="btn_web3">Kết nối Ví Web3</span>
+        </button>
+
+        <div class="footer">
+            <a href="forgot-password.html" data-i18n="forgot_pass">Quên mật khẩu?</a>
+            <a href="Register.html" data-i18n="register">Đăng ký</a>
+        </div>
+    </div>
+
+    <script>
+        // 1. Dữ liệu ngôn ngữ
+        const translations = {
+            vi: {
+                brand_sub: "Hệ thống xác thực minh bạch",
+                email_placeholder: "Email",
+                pass_placeholder: "Mật khẩu",
+                btn_login: "Đăng nhập",
+                or: "Hoặc",
+                btn_web3: "Kết nối Ví Web3",
+                forgot_pass: "Quên mật khẩu?",
+                register: "Đăng ký",
+                msg_success: "Đăng nhập thành công! Chào ",
+                msg_fail: "Email hoặc mật khẩu không đúng!",
+                msg_error: "Lỗi kết nối dữ liệu!"
+            },
+            en: {
+                brand_sub: "Transparent  Authentication  System",
+                email_placeholder: "Email Address",
+                pass_placeholder: "Password",
+                btn_login: "Login",
+                or: "Or",
+                btn_web3: "Connect Web3 Wallet",
+                forgot_pass: "Forgot Password?",
+                register: "Register",
+                msg_success: "Login successful! Welcome ",
+                msg_fail: "Invalid email or password!",
+                msg_error: "Data connection error!"
+            }
+        };
+
+        // 2. Hàm chuyển đổi ngôn ngữ
+        function setLanguage(lang) {
+            localStorage.setItem('preferredLang', lang);
+            
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang][key]) {
+                    if (el.tagName === 'INPUT') {
+                        el.placeholder = translations[lang][key];
+                    } else {
+                        el.innerText = translations[lang][key];
+                    }
+                }
+            });
+
+            // Cập nhật giao diện nút
+            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`lang-${lang}`).classList.add('active');
+        }
+
+        // 3. Khởi tạo khi load trang
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            const savedLang = localStorage.getItem('preferredLang') || 'vi';
+            setLanguage(savedLang);
+        });
+
+        // 4. Xử lý đăng nhập
+        document.getElementById("loginForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+            const currentLang = localStorage.getItem('preferredLang') || 'vi';
+            const emailInput = document.getElementById("email").value.trim();
+            const passwordInput = document.getElementById("password").value.trim();
+
+            const authenticate = (users) => {
+                const user = users.find(u => u.email === emailInput && u.password_hash === passwordInput);
+                if (user) {
+                    localStorage.setItem("currentUser", JSON.stringify(user));
+                    alert(translations[currentLang].msg_success + user.name);
+                    window.location.href = "Dashboard.html";
+                } else {
+                    alert(translations[currentLang].msg_fail);
+                }
+            };
+
+            const localData = localStorage.getItem("localUsers");
+            if (localData) {
+                authenticate(JSON.parse(localData));
+            } else {
+                fetch("users.json")
+                    .then(res => res.json())
+                    .then(users => authenticate(users))
+                    .catch(err => alert(translations[currentLang].msg_error));
+            }
+        });
+    </script>
+</body>
+</html>

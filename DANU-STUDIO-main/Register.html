@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="page_title">TrustFlow AI - Đăng ký tài khoản</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        /* Style cho nút chuyển đổi ngôn ngữ */
+        .lang-switch-fixed {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 8px;
+            z-index: 1000;
+        }
+
+        .lang-btn {
+            cursor: pointer;
+            border: 1px solid var(--glass-border);
+            background: var(--glass);
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 800;
+            color: #1e293b;
+            transition: 0.3s;
+            backdrop-filter: blur(10px);
+        }
+
+        .lang-btn:hover {
+            background: white;
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .lang-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        }
+        
+        :root {
+            --primary: #4F46E5;
+            --secondary: #9333EA;
+            --glass: rgba(255, 255, 255, 0.8);
+            --glass-border: rgba(255, 255, 255, 0.5);
+            --error: #ef4444;
+            --success: #10b981;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #0f172a;
+            overflow: hidden;
+        }
+
+        .bg-blobs {
+            position: absolute; width: 100%; height: 100%; z-index: -1; filter: blur(80px);
+        }
+        .blob {
+            position: absolute; width: 500px; height: 500px; border-radius: 50%; animation: move 20s infinite alternate;
+        }
+        .blob-1 { background: rgba(79, 70, 229, 0.3); top: -100px; left: -100px; }
+        .blob-2 { background: rgba(147, 51, 234, 0.2); bottom: -100px; right: -100px; }
+        @keyframes move { from { transform: translate(0, 0) scale(1); } to { transform: translate(80px, 80px) scale(1.1); } }
+
+        .card {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            padding: 40px;
+            border-radius: 32px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+        .header { text-align: center; margin-bottom: 25px; }
+        .brand-name { font-size: 24px; font-weight: 800; color: #1e293b; }
+        
+        .input-group { margin-bottom: 15px; position: relative; }
+        .input-group i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
+        .input-group input {
+            width: 100%;
+            padding: 14px 15px 14px 45px;
+            border-radius: 14px;
+            border: 1px solid #e2e8f0;
+            outline: none;
+            font-size: 14px;
+            background: rgba(255, 255, 255, 0.5);
+            transition: 0.3s;
+        }
+        .input-group input:focus { border-color: var(--primary); background: white; }
+
+        .btn-register {
+            width: 100%; padding: 14px; border-radius: 14px; border: none; font-weight: 700;
+            background: #1e293b; color: white; cursor: pointer; transition: 0.3s;
+            text-align: center; display: block; text-decoration: none;
+        }
+        .btn-register:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+
+        /* Thông báo lỗi & Thành công */
+        #error-msg { color: var(--error); font-size: 13px; margin-bottom: 15px; display: none; font-weight: 600; text-align: center; }
+        #success-box { 
+            display: none; text-align: center; animation: scaleUp 0.5s ease;
+        }
+        @keyframes scaleUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        .success-icon { color: var(--success); margin-bottom: 15px; }
+        .success-title { color: #1e293b; font-size: 22px; font-weight: 800; margin-bottom: 10px; }
+
+        .footer { text-align: center; margin-top: 20px; font-size: 14px; color: #64748b; }
+        .footer a { color: var(--primary); text-decoration: none; font-weight: 700; }
+    </style>
+</head>
+<body>
+    <div class="lang-switch-fixed">
+        <button onclick="setLanguage('vi')" id="btn-vi" class="lang-btn active">VI</button>
+        <button onclick="setLanguage('en')" id="btn-en" class="lang-btn">EN</button>
+    </div>
+
+    <div class="bg-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <div class="card">
+        <!-- Khu vực đăng ký thành công -->
+        <div id="success-box">
+            <div class="success-icon"><i data-lucide="party-popper" size="64"></i></div>
+            <h2 class="success-title" data-i18n="success_title">Đăng ký thành công!</h2>
+            <p style="color: #64748b; margin-bottom: 25px;" data-i18n="success_desc">Chào mừng bạn đến với cộng đồng TrustFlow AI.</p>
+            <a href="Login.html" class="btn-register" data-i18n="login_now">Đăng nhập ngay</a>
+        </div>
+
+        <!-- Form đăng ký -->
+        <div id="register-form-container">
+            <div class="header">
+                <h1 class="brand-name" data-i18n="form_title">Tạo tài khoản mới</h1>
+                <p style="color: #64748b; font-size: 14px;" data-i18n="form_subtitle">Tham gia TrustFlow AI ngay hôm nay</p>
+            </div>
+
+            <div id="error-msg"></div>
+
+            <form id="registerForm">
+                <div class="input-group">
+                    <i data-lucide="user" size="18"></i>
+                    <input type="text" id="fullname" placeholder="Họ và tên của bạn" required>
+                </div>
+
+                <div class="input-group">
+                    <i data-lucide="mail" size="18"></i>
+                    <input type="email" id="email" placeholder="Địa chỉ Email" required>
+                </div>
+
+                <div class="input-group">
+                    <i data-lucide="lock" size="18"></i>
+                    <input type="password" id="password" placeholder="Mật khẩu (Ít nhất 6 ký tự)" required>
+                </div>
+
+                <div class="input-group">
+                    <i data-lucide="shield-check" size="18"></i>
+                    <input type="password" id="confirmPassword" placeholder="Xác nhận mật khẩu" required>
+                </div>
+
+                <button type="submit" class="btn-register" data-i18n="btn_register">
+                    Đăng ký tài khoản
+                </button>
+            </form>
+
+            <div class="footer">
+                <span data-i18n="footer_text">Bạn đã có tài khoản?</span> <a href="Login.html" data-i18n="login_now">Đăng nhập ngay</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- ĐA NGÔN NGỮ ---
+        const translations = {
+            vi: {
+                page_title: "TrustFlow AI - Đăng ký tài khoản",
+                success_title: "Đăng ký thành công!",
+                success_desc: "Chào mừng bạn đến với cộng đồng TrustFlow AI.",
+                login_now: "Đăng nhập ngay",
+                form_title: "Tạo tài khoản mới",
+                form_subtitle: "Tham gia TrustFlow AI ngay hôm nay",
+                btn_register: "Đăng ký tài khoản",
+                footer_text: "Bạn đã có tài khoản?",
+                ph_name: "Họ và tên của bạn",
+                ph_email: "Địa chỉ Email",
+                ph_pass: "Mật khẩu (Ít nhất 6 ký tự)",
+                ph_confirm: "Xác nhận mật khẩu",
+                err_pass_short: "⚠️ Mật khẩu phải có ít nhất 6 ký tự!",
+                err_pass_mismatch: "⚠️ Mật khẩu xác nhận không khớp!",
+                err_email_existed: "⚠️ Email này đã được đăng ký!",
+                err_db: "Lỗi kết nối cơ sở dữ liệu!"
+            },
+            en: {
+                page_title: "TrustFlow AI - Register Account",
+                success_title: "Registration Successful!",
+                success_desc: "Welcome to the TrustFlow AI community.",
+                login_now: "Login Now",
+                form_title: "Create New Account",
+                form_subtitle: "Join TrustFlow AI today",
+                btn_register: "Register Account",
+                footer_text: "Already have an account?",
+                ph_name: "Your Full Name",
+                ph_email: "Email Address",
+                ph_pass: "Password (At least 6 characters)",
+                ph_confirm: "Confirm Password",
+                err_pass_short: "⚠️ Password must be at least 6 characters!",
+                err_pass_mismatch: "⚠️ Passwords do not match!",
+                err_email_existed: "⚠️ This email is already registered!",
+                err_db: "Database connection error!"
+            }
+        };
+
+        let currentLang = localStorage.getItem('trustflow_lang') || 'vi';
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('trustflow_lang', lang);
+
+            // Cập nhật text các thẻ có data-i18n
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                el.innerText = translations[lang][el.getAttribute('data-i18n')];
+            });
+
+            // Cập nhật placeholders
+            document.getElementById('fullname').placeholder = translations[lang].ph_name;
+            document.getElementById('email').placeholder = translations[lang].ph_email;
+            document.getElementById('password').placeholder = translations[lang].ph_pass;
+            document.getElementById('confirmPassword').placeholder = translations[lang].ph_confirm;
+
+            // Cập nhật trạng thái nút
+            document.getElementById('btn-vi').classList.toggle('active', lang === 'vi');
+            document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+            
+            document.title = translations[lang].page_title;
+        }
+
+        // --- LOGIC ĐĂNG KÝ ---
+        lucide.createIcons();
+
+        const form = document.getElementById('registerForm');
+        const errorDiv = document.getElementById('error-msg');
+        const successBox = document.getElementById('success-box');
+        const formContainer = document.getElementById('register-form-container');
+
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const fullname = document.getElementById('fullname').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const pass = document.getElementById('password').value;
+            const confirmPass = document.getElementById('confirmPassword').value;
+
+            errorDiv.style.display = 'none';
+
+            // 1. Kiểm tra mật khẩu
+            if (pass.length < 6) {
+                showError(translations[currentLang].err_pass_short);
+                return;
+            }
+            if (pass !== confirmPass) {
+                showError(translations[currentLang].err_pass_mismatch);
+                return;
+            }
+
+            try {
+                // 2. Lấy danh sách user hiện tại
+                let allUsers = [];
+                const response = await fetch("users.json");
+                const originalUsers = await response.json();
+                
+                const localData = localStorage.getItem("localUsers");
+                const localUsers = localData ? JSON.parse(localData) : originalUsers;
+                allUsers = localUsers;
+
+                // 3. Kiểm tra trùng Email
+                const isExisted = allUsers.some(u => u.email === email);
+                if (isExisted) {
+                    showError(translations[currentLang].err_email_existed);
+                    return;
+                }
+
+                // 4. Thêm user mới
+                const newUser = {
+                    user_id: "U" + (allUsers.length + 1).toString().padStart(3, '0'),
+                    name: fullname,
+                    email: email,
+                    password_hash: pass,
+                    role: "Member",
+                    reputation_score: null,
+                    completed_pools: null,
+                    sbt_level: "New"
+                };
+
+                allUsers.push(newUser);
+                localStorage.setItem("localUsers", JSON.stringify(allUsers));
+
+                // Hiển thị thành công
+                formContainer.style.display = 'none';
+                successBox.style.display = 'block';
+                lucide.createIcons();
+
+            } catch (err) {
+                showError(translations[currentLang].err_db);
+                console.error(err);
+            }
+        });
+
+        function showError(msg) {
+            errorDiv.innerText = msg;
+            errorDiv.style.display = 'block';
+        }
+
+        // Khởi tạo ngôn ngữ ban đầu
+        window.onload = () => setLanguage(currentLang);
+    </script>
+</body>
+</html>

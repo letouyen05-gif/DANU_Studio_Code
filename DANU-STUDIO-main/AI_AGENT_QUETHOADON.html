@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrustFlow AI - Đối Soát Tài Chính Linh Hoạt</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #f1f5f9; }
+        .scan-line {
+            width: 100%; height: 4px; background: #3b82f6;
+            position: absolute; top: 0; left: 0;
+            box-shadow: 0 0 15px #3b82f6;
+            animation: scan 2s linear infinite; display: none;
+        }
+        @keyframes scan {
+            0% { top: 0; }
+            50% { top: 100%; }
+            100% { top: 0; }
+        }
+        .preview-container { position: relative; overflow: hidden; border-radius: 12px; }
+        .lang-btn.active {
+            background-color: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+<div class="max-w-6xl mx-auto">
+    <!-- TOP NAVIGATION (MỚI THÊM) -->
+    <div class="flex items-center justify-between mb-8">
+        <a href="Dashboard.html" class="inline-flex items-center text-slate-500 hover:text-blue-600 font-bold text-sm transition-colors group">
+            <div class="w-8 h-8 rounded-full bg-white shadow-sm border border-slate-200 flex items-center justify-center mr-3 group-hover:border-blue-200 transition-all">
+                <i class="fas fa-chevron-left text-xs"></i>
+            </div>
+            <span data-i18n="btn_back">Quay lại Dashboard</span>
+        </a>
+
+        <!-- Bộ chuyển đổi ngôn ngữ -->
+        <div class="flex bg-white p-1 rounded-lg border border-slate-200 shadow-sm">
+            <button onclick="changeLanguage('vi')" id="lang-vi" class="lang-btn active px-3 py-1 text-xs font-bold rounded-md transition-all">VI</button>
+            <button onclick="changeLanguage('en')" id="lang-en" class="lang-btn px-3 py-1 text-xs font-bold rounded-md transition-all text-slate-400">EN</button>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- CỘT TRÁI: NHẬP LIỆU -->
+        <div class="lg:col-span-4 space-y-6">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                <h2 class="font-bold text-xl mb-4 text-slate-800 italic underline decoration-blue-500" data-i18n="portal_title">TrustFlow Portal</h2>
+                
+                <form id="main-form" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-600 mb-1" data-i18n="label_leader">Mã định danh Leader</label>
+                        <input type="text" id="leader_id" required placeholder="Ví dụ: L001" 
+                            class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none uppercase font-bold text-blue-600">
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-slate-600" data-i18n="label_invoice">Hóa đơn thanh toán (Ảnh)</label>
+                        <div id="drop-zone" class="border-2 border-dashed border-blue-200 rounded-xl p-4 text-center bg-blue-50 hover:bg-blue-100 transition cursor-pointer">
+                            <input type="file" id="file-input" class="hidden" accept="image/*">
+                            <div id="upload-prompt">
+                                <i class="fas fa-cloud-upload-alt text-3xl text-blue-400 mb-2"></i>
+                                <p class="text-xs text-blue-600 font-medium" data-i18n="upload_text">Bấm để tải hóa đơn lên n8n</p>
+                            </div>
+                            <div id="preview-box" class="hidden preview-container">
+                                <img id="img-preview" class="w-full h-auto object-contain max-h-64">
+                                <div id="scanner-line" class="scan-line"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="btn-submit" class="w-full bg-blue-600 text-white font-black py-4 rounded-lg hover:bg-blue-700 transition shadow-lg tracking-widest uppercase" data-i18n="btn_submit">
+                        KÍCH HOẠT ĐỐI SOÁT AI
+                    </button>
+                </form>
+            </div>
+
+            <!-- TRẠNG THÁI WORKFLOW -->
+            <div class="bg-white p-4 rounded-xl border border-slate-200">
+                <p class="text-[10px] font-bold text-slate-400 uppercase mb-3 tracking-widest" data-i18n="workflow_title">Hệ thống Node n8n</p>
+                <div id="status-nodes" class="space-y-3">
+                    <div class="flex items-center text-sm text-slate-400" id="s-ocr"><i class="fas fa-circle-notch mr-2"></i> <span data-i18n="node_ocr">1. AI Vision Analysis</span></div>
+                    <div class="flex items-center text-sm text-slate-400" id="s-sheet"><i class="fas fa-database mr-2"></i> <span data-i18n="node_sheet">2. Google Sheets Lookup</span></div>
+                    <div class="flex items-center text-sm text-slate-400" id="s-agent"><i class="fas fa-robot mr-2"></i> <span data-i18n="node_agent">3. Smart Escrow Auditor</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CỘT PHẢI: KẾT QUẢ -->
+        <div class="lg:col-span-8 bg-white rounded-2xl shadow-sm border border-slate-200 p-6 min-h-[550px] relative">
+            <div id="welcome-msg" class="h-full flex flex-col items-center justify-center text-slate-400 py-20 text-center">
+                <i class="fas fa-shield-halved text-6xl mb-4 text-slate-100"></i>
+                <h3 class="text-xl font-bold text-slate-300" data-i18n="welcome_title">HỆ THỐNG ĐANG SẴN SÀNG</h3>
+                <p class="max-w-xs" data-i18n="welcome_desc">Tải hóa đơn lên để AI thực hiện quy trình kiểm tra tự động</p>
+            </div>
+
+            <!-- VÙNG KẾT QUẢ SẼ HIỆN KHI CÓ DATA -->
+            <div id="result-content" class="hidden space-y-6">
+                <div id="decision-box" class="p-8 rounded-2xl flex items-center justify-between text-white transition-all duration-700">
+                    <div>
+                        <h3 class="text-xs font-bold uppercase tracking-[0.2em] mb-2 opacity-90" data-i18n="res_status">Trạng thái giải ngân</h3>
+                        <span id="decision-text" class="text-5xl font-black italic tracking-tighter uppercase">PROCESSING</span>
+                    </div>
+                    <i id="decision-icon" class="fas fa-spinner fa-spin text-6xl"></i>
+                </div>
+
+                <div class="bg-slate-50 p-6 rounded-xl border border-slate-200 shadow-inner">
+                    <h4 class="font-bold text-slate-800 mb-2 flex items-center uppercase text-xs tracking-wider">
+                        <i class="fas fa-clipboard-check mr-2 text-blue-500"></i> <span data-i18n="res_conclusion">Kết luận của Trọng tài AI:</span>
+                    </h4>
+                    <p id="reason-text" class="text-slate-700 italic leading-relaxed text-base font-medium">Đang phân tích dữ liệu từ n8n...</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="p-5 border-2 border-blue-50 rounded-xl bg-white shadow-sm">
+                        <p class="text-[10px] text-blue-400 font-black uppercase mb-3 border-b pb-2" data-i18n="res_ocr_title">Dữ liệu thực tế (AI OCR)</p>
+                        <div id="ocr-details" class="space-y-2 text-sm font-mono text-slate-700">
+                            <!-- JS render -->
+                        </div>
+                    </div>
+                    <div class="p-5 border-2 border-emerald-50 rounded-xl bg-white shadow-sm">
+                        <p class="text-[10px] text-emerald-400 font-black uppercase mb-3 border-b pb-2" data-i18n="res_sys_title">Cam kết hệ thống (Sheets)</p>
+                        <div id="sys-details" class="space-y-2 text-sm font-mono text-slate-700">
+                            <!-- JS render -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- LOGIC CHUYỂN ĐỔI NGÔN NGỮ (MỚI THÊM) ---
+    let currentLang = 'vi';
+    const translations = {
+        vi: {
+            btn_back: "Quay lại Dashboard",
+            portal_title: "TrustFlow Portal",
+            label_leader: "Mã định danh Leader",
+            label_invoice: "Hóa đơn thanh toán (Ảnh)",
+            upload_text: "Bấm để tải hóa đơn lên n8n",
+            btn_submit: "KÍCH HOẠT ĐỐI SOÁT AI",
+            workflow_title: "Hệ thống Node n8n",
+            node_ocr: "1. AI Vision Analysis",
+            node_sheet: "2. Google Sheets Lookup",
+            node_agent: "3. Smart Escrow Auditor",
+            welcome_title: "HỆ THỐNG ĐANG SẴN SÀNG",
+            welcome_desc: "Tải hóa đơn lên để AI thực hiện quy trình kiểm tra tự động",
+            res_status: "Trạng thái giải ngân",
+            res_conclusion: "Kết luận của Trọng tài AI:",
+            res_ocr_title: "Dữ liệu thực tế (AI OCR)",
+            res_sys_title: "Cam kết hệ thống (Sheets)",
+            col_service: "Dịch vụ:",
+            col_amount: "Số tiền:",
+            col_card: "Mã thẻ:",
+            col_leader: "Leader:",
+            col_plan: "Gói ĐK:",
+            col_price: "Giá chuẩn:",
+            msg_processing: "Đang phân tích dữ liệu từ n8n..."
+        },
+        en: {
+            btn_back: "Back to Dashboard",
+            portal_title: "TrustFlow Portal",
+            label_leader: "Leader Identifier",
+            label_invoice: "Payment Invoice (Image)",
+            upload_text: "Click to upload invoice to n8n",
+            btn_submit: "ACTIVATE AI AUDIT",
+            workflow_title: "n8n Node System",
+            node_ocr: "1. AI Vision Analysis",
+            node_sheet: "2. Google Sheets Lookup",
+            node_agent: "3. Smart Escrow Auditor",
+            welcome_title: "SYSTEM IS READY",
+            welcome_desc: "Upload an invoice for AI to perform automated audit",
+            res_status: "Disbursement Status",
+            res_conclusion: "AI Arbitrator Conclusion:",
+            res_ocr_title: "Actual Data (AI OCR)",
+            res_sys_title: "System Commitment (Sheets)",
+            col_service: "Service:",
+            col_amount: "Amount:",
+            col_card: "Card:",
+            col_leader: "Leader:",
+            col_plan: "Reg Plan:",
+            col_price: "Std Price:",
+            msg_processing: "Analyzing data from n8n..."
+        }
+    };
+
+    function changeLanguage(lang) {
+        currentLang = lang;
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+            btn.classList.remove('active', 'text-white');
+            btn.classList.add('text-slate-400');
+        });
+        document.getElementById(`lang-${lang}`).classList.add('active', 'text-white');
+
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (translations[lang][key]) el.innerText = translations[lang][key];
+        });
+    }
+
+    // --- LOGIC GIỮ NGUYÊN TỪ BẢN GỐC ---
+    const N8N_WEBHOOK_URL = 'https://danustudio.app.n8n.cloud/webhook/verify-invoice';
+
+    const fileInput = document.getElementById('file-input');
+    const dropZone = document.getElementById('drop-zone');
+    const previewBox = document.getElementById('preview-box');
+    const imgPreview = document.getElementById('img-preview');
+    const uploadPrompt = document.getElementById('upload-prompt');
+    const scannerLine = document.getElementById('scanner-line');
+
+    dropZone.onclick = () => fileInput.click();
+    fileInput.onchange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                imgPreview.src = event.target.result;
+                uploadPrompt.classList.add('hidden');
+                previewBox.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    document.getElementById('main-form').onsubmit = async (e) => {
+        e.preventDefault();
+        const file = fileInput.files[0];
+        const leaderId = document.getElementById('leader_id').value.trim().toUpperCase();
+
+        if(!file) return alert(currentLang === 'vi' ? "Vui lòng tải ảnh hóa đơn!" : "Please upload invoice!");
+        if(!leaderId) return alert(currentLang === 'vi' ? "Vui lòng nhập Leader ID!" : "Please enter Leader ID!");
+
+        document.getElementById('welcome-msg').classList.add('hidden');
+        document.getElementById('result-content').classList.remove('hidden');
+        resetUI();
+
+        updateNode('s-ocr', 'loading');
+        scannerLine.style.display = 'block';
+
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('leader_id', leaderId);
+
+        try {
+            const response = await fetch(N8N_WEBHOOK_URL, {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) throw new Error('Network error');
+
+            const data = await response.json();
+
+            await wait(1000);
+            updateNode('s-ocr', 'done');
+            scannerLine.style.display = 'none';
+
+            updateNode('s-sheet', 'loading');
+            await wait(1000);
+            updateNode('s-sheet', 'done');
+
+            updateNode('s-agent', 'loading');
+            await wait(800);
+            updateNode('s-agent', 'done');
+
+            renderResult(data);
+
+        } catch (error) {
+            setFinalStatus(false, "LỖI KẾT NỐI: n8n không phản hồi.");
+        }
+    };
+
+    function renderResult(data) {
+        if (!data) return;
+        const lang = translations[currentLang];
+        setFinalStatus(data.approved, data.reason);
+
+        document.getElementById('ocr-details').innerHTML = `
+            <div class="flex justify-between"><span>${lang.col_service}</span> <span class="font-bold text-blue-600">${data.ocr_info?.service || '---'}</span></div>
+            <div class="flex justify-between"><span>${lang.col_amount}</span> <span class="font-bold text-blue-600">${(data.ocr_info?.amount || 0).toLocaleString()}đ</span></div>
+            <div class="flex justify-between"><span>${lang.col_card}</span> <span class="font-bold text-blue-600">**** ${data.ocr_info?.card || '----'}</span></div>
+        `;
+
+        document.getElementById('sys-details').innerHTML = `
+            <div class="flex justify-between"><span>${lang.col_leader}</span> <span class="font-bold text-emerald-600">${data.sys_info?.name || '---'}</span></div>
+            <div class="flex justify-between"><span>${lang.col_plan}</span> <span class="font-bold text-emerald-600">${data.sys_info?.service || '---'}</span></div>
+            <div class="flex justify-between"><span>${lang.col_price}</span> <span class="font-bold text-emerald-600">${(data.sys_info?.price || 0).toLocaleString()}đ</span></div>
+        `;
+    }
+
+    function setFinalStatus(success, message) {
+        const dBox = document.getElementById('decision-box');
+        const dText = document.getElementById('decision-text');
+        const dIcon = document.getElementById('decision-icon');
+        const reasonText = document.getElementById('reason-text');
+
+        dText.innerText = success ? "APPROVED" : "REJECTED";
+        reasonText.innerText = message;
+
+        if (success) {
+            dBox.className = "p-8 rounded-2xl flex items-center justify-between text-white bg-gradient-to-r from-emerald-500 to-teal-600 shadow-xl shadow-emerald-200";
+            dIcon.className = "fas fa-check-circle text-6xl";
+        } else {
+            dBox.className = "p-8 rounded-2xl flex items-center justify-between text-white bg-gradient-to-r from-rose-500 to-red-600 shadow-xl shadow-rose-200";
+            dIcon.className = "fas fa-exclamation-triangle text-6xl animate-pulse";
+        }
+    }
+
+    function resetUI() {
+        document.getElementById('decision-box').className = "p-8 rounded-2xl flex items-center justify-between text-white bg-slate-400 animate-pulse";
+        document.getElementById('decision-text').innerText = currentLang === 'vi' ? "XỬ LÝ..." : "PROCESSING...";
+        document.getElementById('reason-text').innerText = translations[currentLang].msg_processing;
+    }
+
+    function updateNode(id, state) {
+        const el = document.getElementById(id);
+        if(state === 'loading') {
+            el.className = "flex items-center text-sm text-blue-500 font-bold transition-all";
+            el.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i> ${currentLang === 'vi' ? 'Đang chạy...' : 'Running...'}`;
+        } else {
+            el.className = "flex items-center text-sm text-green-500 font-bold";
+            el.innerHTML = `<i class="fas fa-check-circle mr-2"></i> ${currentLang === 'vi' ? 'Hoàn thành' : 'Done'}`;
+        }
+    }
+
+    const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+</script>
+</body>
+</html>

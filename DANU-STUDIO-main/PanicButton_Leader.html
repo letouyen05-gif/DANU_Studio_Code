@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrustFlow AI | Smart Monitor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Style cho nút chuyển đổi ngôn ngữ */
+        .lang-btn {
+            cursor: pointer;
+            border: 1px solid var(--border, #e2e8f0);
+            background: white;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #64748b;
+            transition: all 0.3s ease;
+        }
+
+        .lang-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .lang-btn.active {
+            background: var(--primary, #6366f1);
+            color: white;
+            border-color: var(--primary, #6366f1);
+            box-shadow: 0 4px 10px rgba(99, 102, 241, 0.2);
+        }
+        /* --- CORE VARIABLES --- */
+        :root {
+            --primary: #6366f1;
+            --primary-light: #818cf8;
+            --primary-dark: #4f46e5;
+            --secondary: #a855f7;
+            --bg: #f8fafc;
+            --text-main: #0f172a;
+            --text-sub: #64748b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #f43f5e;
+            --border: #e2e8f0;
+            --radius-md: 16px;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; outline: none; }
+        
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background: #f1f5f9;
+            background-image: radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.05) 0px, transparent 50%), 
+                              radial-gradient(at 100% 0%, rgba(168, 85, 247, 0.05) 0px, transparent 50%);
+            color: var(--text-main); 
+            height: 100vh;
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+
+        /* HEADER */
+        .header-bar {
+            height: 70px; background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border); display: flex; align-items: center;
+            justify-content: space-between; padding: 0 30px; z-index: 50; flex-shrink: 0;
+        }
+        .logo { 
+            display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 20px; 
+            background: linear-gradient(135deg, var(--primary), var(--secondary)); 
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
+        }
+        .btn-back { 
+            text-decoration: none; color: var(--text-sub); font-weight: 600; font-size: 14px; 
+            display: flex; align-items: center; gap: 6px; transition: 0.2s; 
+            background: white; padding: 8px 16px; border-radius: 100px; border: 1px solid var(--border);
+        }
+        .btn-back:hover { border-color: var(--primary); color: var(--primary); }
+
+        /* LAYOUT */
+        .main-layout {
+            display: grid; grid-template-columns: 320px 1fr 380px; 
+            height: calc(100vh - 70px); overflow: hidden;
+        }
+        
+        /* CỘT 1: INFO */
+        .col-info { 
+            background: white; border-right: 1px solid var(--border); padding: 30px; 
+            overflow-y: auto; display: flex; flex-direction: column; gap: 24px; 
+        }
+        .section-title { font-size: 13px; font-weight: 700; color: var(--text-sub); text-transform: uppercase; margin-bottom: 12px; letter-spacing: 0.5px; }
+        .card-glass { 
+            background: linear-gradient(145deg, #ffffff, #f8fafc); 
+            border-radius: var(--radius-md); padding: 20px; border: 1px solid var(--border); 
+            box-shadow: var(--shadow);
+        }
+        .info-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px; align-items: center; }
+        .info-row:last-child { margin-bottom: 0; }
+        .info-label { color: var(--text-sub); font-weight: 500; }
+        .info-val { font-weight: 700; color: var(--text-main); }
+        .highlight-val { color: var(--primary); font-weight: 800; font-size: 15px; }
+
+        /* Credential Box Style */
+        .cred-box {
+            background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 15px; margin-top: 15px;
+        }
+        .cred-row { margin-bottom: 8px; font-size: 13px; }
+        .cred-row:last-child { margin-bottom: 0; }
+        .cred-label { color: #1e40af; font-weight: 600; display: block; margin-bottom: 2px; }
+        .cred-val { color: #1e3a8a; font-weight: 800; font-family: monospace; font-size: 14px; display: flex; align-items: center; gap: 6px;}
+
+        /* Rating Stars Style */
+        .star-container {
+            display: flex; justify-content: center; gap: 8px; padding: 10px;
+            background: #f8fafc; border-radius: 12px; border: 1px dashed var(--border);
+        }
+        .star-icon { 
+            width: 28px; height: 28px; cursor: pointer; color: #cbd5e1; fill: #cbd5e1; transition: 0.2s; 
+        }
+        .star-icon:hover, .star-icon.active { color: var(--warning); fill: var(--warning); transform: scale(1.1); }
+
+        /* CỘT 2: MONITOR */
+        .col-monitor { 
+            padding: 40px; display: flex; flex-direction: column; align-items: center; 
+            justify-content: flex-start; padding-top: 60px; position: relative; overflow-y: auto;
+        }
+
+        .money-wrapper { text-align: center; margin-bottom: 40px; }
+        .money-label { font-size: 14px; font-weight: 700; color: var(--text-sub); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+        .money-big { 
+            font-size: 82px; font-weight: 900; color: #2563eb; 
+            line-height: 1; letter-spacing: -3px; font-variant-numeric: tabular-nums;
+        }
+        .status-badge-live {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: #dcfce7; color: #166534; padding: 6px 16px; 
+            border-radius: 20px; font-weight: 700; font-size: 13px; margin-top: 15px;
+        }
+        .dot-blink { width: 8px; height: 8px; background: #166534; border-radius: 50%; animation: blink 1s infinite; }
+        @keyframes blink { 50% { opacity: 0.4; } }
+
+        /* Progress Bar Modern */
+        .progress-card {
+            background: white; border-radius: 20px; padding: 25px; width: 100%; max-width: 600px;
+            box-shadow: 0 10px 30px -5px rgba(37, 99, 235, 0.1); border: 1px solid #eff6ff; margin-bottom: 50px;
+        }
+        .progress-header { display: flex; justify-content: space-between; margin-bottom: 10px; font-weight: 700; color: var(--text-sub); font-size: 14px; }
+        .bar-bg { height: 16px; background: #f1f5f9; border-radius: 20px; overflow: hidden; }
+        .bar-fill { 
+            height: 100%; width: 50%; background: linear-gradient(90deg, #4ade80, #22c55e); 
+            border-radius: 20px; transition: width 0.5s linear; 
+            box-shadow: 0 0 15px rgba(34, 197, 94, 0.4);
+        }
+
+        /* Flow Chart Visual */
+        .flow-visual { 
+            display: flex; align-items: center; justify-content: center; gap: 20px; width: 100%; max-width: 700px; 
+            position: relative;
+        }
+        .flow-node {
+            display: flex; flex-direction: column; align-items: center; z-index: 10;
+        }
+        .node-icon-box {
+            width: 80px; height: 80px; border-radius: 50%; background: white;
+            border: 2px solid #bfdbfe; color: #2563eb;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.15); margin-bottom: 10px;
+        }
+        .node-label { font-weight: 700; color: var(--text-sub); font-size: 14px; }
+        
+        .flow-connector {
+            flex: 1; height: 4px; background: #e2e8f0; border-radius: 10px; position: relative;
+        }
+        .flow-ai-badge {
+            position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+            background: white; border: 2px solid #2563eb; color: #2563eb;
+            padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 800;
+            display: flex; align-items: center; gap: 6px; z-index: 15; 
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); white-space: nowrap;
+        }
+        .flow-coin {
+            position: absolute; top: -10px; width: 24px; height: 24px;
+            background: #fbbf24; border-radius: 50%; border: 2px solid white;
+            box-shadow: 0 2px 5px rgba(245, 158, 11, 0.4);
+            animation: flowRight 2.5s linear infinite; opacity: 0;
+        }
+        @keyframes flowRight {
+            0% { left: 0; opacity: 0; }
+            20% { opacity: 1; }
+            80% { opacity: 1; }
+            100% { left: 100%; opacity: 0; }
+        }
+
+
+        /* CỘT 3: CHAT */
+        .col-chat { background: white; border-left: 1px solid var(--border); display: flex; flex-direction: column; height: 100%; overflow: hidden; }
+        .chat-header { padding: 20px; border-bottom: 1px solid var(--border); font-weight: 700; display: flex; align-items: center; justify-content: space-between; background: #f8fafc; flex-shrink: 0; }
+        .chat-body { flex: 1; padding: 20px; overflow-y: auto; background: #ffffff; display: flex; flex-direction: column; gap: 16px; scroll-behavior: smooth; min-height: 0; }
+        .chat-body::-webkit-scrollbar { width: 6px; }
+        .chat-body::-webkit-scrollbar-track { background: transparent; }
+        .chat-body::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        
+        .msg { padding: 12px 16px; border-radius: 16px; font-size: 14px; max-width: 85%; line-height: 1.5; position: relative; animation: slideUp 0.3s ease; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .msg-ai { background: #f1f5f9; color: var(--text-main); align-self: flex-start; border-top-left-radius: 4px; border: 1px solid var(--border); }
+        .msg-user { background: var(--primary); color: white; align-self: flex-end; border-top-right-radius: 4px; box-shadow: 0 4px 10px rgba(99,102,241,0.2); }
+        
+        .msg-header { font-size: 11px; font-weight: 800; margin-bottom: 4px; display: flex; align-items: center; gap: 4px; opacity: 0.8; }
+
+        /* VOTE STYLE LIKE MESSENGER */
+        .vote-card { 
+            background: white; border: 1px solid var(--danger); border-radius: 12px; padding: 16px; margin-top: 8px; 
+            box-shadow: 0 4px 15px rgba(244, 63, 94, 0.1); width: 100%;
+        }
+        .vote-title { 
+            font-weight: 800; color: var(--danger); font-size: 13px; margin-bottom: 8px; 
+            display: flex; align-items: center; gap: 6px; 
+            text-transform: uppercase;
+        }
+        .vote-question { font-size: 14px; font-weight: 600; margin-bottom: 12px; }
+        
+        .vote-option {
+            background: #fee2e2; color: var(--danger); 
+            padding: 10px 14px; border-radius: 8px; 
+            font-weight: 700; font-size: 13px; cursor: pointer; 
+            transition: 0.2s; border: 1px solid #fecaca;
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 8px;
+        }
+        .vote-option:hover { background: var(--danger); color: white; border-color: var(--danger); }
+        
+        .vote-option-ignore {
+            background: transparent; color: var(--text-sub); border: 1px solid var(--border);
+        }
+        .vote-option-ignore:hover { background: #f1f5f9; color: var(--text-main); }
+
+
+        .chat-footer { padding: 15px; border-top: 1px solid var(--border); background: white; flex-shrink: 0; }
+        .input-wrapper { display: flex; gap: 10px; background: #f8fafc; padding: 8px; border-radius: 14px; border: 1px solid var(--border); transition: 0.3s; }
+        .input-wrapper:focus-within { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1); }
+        .chat-input { flex: 1; border: none; background: transparent; font-size: 14px; font-family: inherit; font-weight: 500; }
+        .btn-icon { width: 36px; height: 36px; border: none; background: transparent; border-radius: 10px; cursor: pointer; color: var(--text-sub); display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .btn-icon:hover { background: #e2e8f0; color: var(--primary); }
+        .btn-send { background: var(--primary); color: white; }
+        .btn-send:hover { background: var(--primary-dark); color: white; }
+
+        /* ERROR STATE (Stopped) */
+        .state-stopped .flow-coin { animation: none; display: none; }
+        .state-stopped .flow-connector { background: #fee2e2; border-top: 2px dashed var(--danger); }
+        .state-stopped .node-icon-box { filter: grayscale(1); border-color: var(--danger); color: var(--danger); }
+        .state-stopped .money-big { color: var(--text-sub); opacity: 0.6; -webkit-text-fill-color: initial; background: none; text-decoration: line-through; }
+        .state-stopped .bar-fill { background: var(--danger); box-shadow: none; }
+        .state-stopped .status-badge-live { background: #fee2e2; color: var(--danger); }
+        .state-stopped .dot-blink { background: var(--danger); animation: none; }
+
+    </style>
+</head>
+<body>
+
+    <header class="header-bar">
+        <div class="logo"><i data-lucide="shield-check"></i> TrustFlow <span style="font-weight: 500; color: var(--text-sub); font-size: 16px;">| Monitor Room</span></div>
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <div class="lang-switch-container" style="display: flex; gap: 5px;">
+                <button onclick="setLanguage('vi')" id="btn-lang-vi" class="lang-btn active">VI</button>
+                <button onclick="setLanguage('en')" id="btn-lang-en" class="lang-btn">EN</button>
+            </div>
+            <a href="Dashboard.html" class="btn-back">
+                <i data-lucide="arrow-left" style="width:16px;"></i> 
+                <span data-i18n="back_dashboard">Quay lại Dashboard</span>
+            </a>
+        </div>
+    </header>
+
+    <div class="main-layout">
+        
+        <!-- CỘT 1: THÔNG TIN DỊCH VỤ -->
+        <aside class="col-info">
+            <div>
+                <p class="section-title" data-i18n="service_info_title">Thông tin gói dịch vụ</p>
+                <div class="card-glass">
+                    <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px;">
+                        <div id="service-icon-box" style="width:48px; height:48px; background:#e11d48; color:white; border-radius:12px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:20px; box-shadow: 0 4px 10px rgba(225, 29, 72, 0.3);">
+                            N
+                        </div>
+                        <div>
+                            <div id="display-service-name" style="font-weight:800; font-size:16px;">Chat GPT Premium</div>
+                            <div id="display-service-sub" style="font-size:12px; color:var(--text-sub);">Gói 4K UHD</div>
+                        </div>
+                    </div>
+                    
+                    <div class="info-row">
+                        <span class="info-label" data-i18n="total_value">Tổng giá trị gói:</span>
+                        <span id="display-total-price" class="info-val">260,000đ</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label" data-i18n="members_count">Số thành viên:</span>
+                        <span id="display-members" class="info-val">4 / 4 <i data-lucide="users" style="width:14px; display:inline; vertical-align:middle;"></i></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label" data-i18n="escrow_label">Ký quỹ:</span>
+                        <span id="display-escrow-per-person" class="highlight-val">65,000đ<span style="font-size:11px; font-weight:600; color:var(--text-sub);" data-i18n="per_person">/người</span></span>
+                    </div>
+
+                    <div style="margin-top:15px; padding-top:15px; border-top:1px dashed var(--border);">
+                        <div class="info-row">
+                            <span class="info-label" data-i18n="remaining_time">Thời hạn còn lại:</span>
+                            <span class="info-val" style="color:var(--primary);"><span data-i18n="days_left">20 ngày</span> <span style="color:var(--text-sub); font-weight:500;">/ 30 <span data-i18n="days">ngày</span></span></span>
+                        </div>
+                    </div>
+
+                    <div class="cred-box">
+                        <div class="cred-row">
+                            <span class="cred-label" data-i18n="account_label">Tài khoản (User):</span>
+                            <span id="display-username" class="cred-val">member_01</span>
+                        </div>
+                        <div class="cred-row">
+                            <span class="cred-label" data-i18n="password_label">Mật khẩu (Password):</span>
+                            <span class="cred-val">******* <i data-lucide="check-circle" style="width:14px; color:#16a34a;"></i></span>
+                            <div style="font-size:10px; font-style:italic; color:#16a34a; margin-top:2px;" data-i18n="ai_verified">(Đã xác thực bởi AI)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <p class="section-title" data-i18n="leader_title">Người lập quỹ (Leader)</p>
+                <div class="card-glass" style="display:flex; align-items:center; gap:15px;">
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" style="width:50px; height:50px; border-radius:50%; background:#f1f5f9; border:2px solid white; box-shadow:var(--shadow);">
+                    <div style="flex:1;">
+                        <div id="display-leader-name" style="font-weight:700; font-size:15px;">Duy_Leader</div>
+                        <div style="display:flex; align-items:center; gap:4px; font-size:12px; color:var(--text-sub); margin-top:2px;">
+                            <i data-lucide="star" style="width:12px; fill:var(--warning); color:var(--warning);"></i> 4.8 <span data-i18n="reputation">Uy tín</span>
+                        </div>
+                    </div>
+                    <div style="background:#ecfdf5; color:#047857; padding:4px 10px; border-radius:8px; font-size:11px; font-weight:800; letter-spacing:0.5px;">TRUSTED</div>
+                </div>
+            </div>
+
+            <div>
+                <p class="section-title" data-i18n="rating_title">Đánh giá chất lượng Leader</p>
+                <div class="star-container">
+                    <i data-lucide="star" class="star-icon" onclick="rateLeader(1)"></i>
+                    <i data-lucide="star" class="star-icon" onclick="rateLeader(2)"></i>
+                    <i data-lucide="star" class="star-icon" onclick="rateLeader(3)"></i>
+                    <i data-lucide="star" class="star-icon" onclick="rateLeader(4)"></i>
+                    <i data-lucide="star" class="star-icon" onclick="rateLeader(5)"></i>
+                </div>
+            </div>
+        </aside>
+
+        <!-- CỘT 2: MONITOR CENTER -->
+        <main class="col-monitor" id="monitor-area">
+            
+            <div class="money-wrapper">
+                <p class="money-label" data-i18n="weekly_disbursement">Tổng giải ngân tuần này (Weekly Disbursement)</p>
+                <div style="display:flex; align-items:flex-end; justify-content:center;">
+                    <div class="money-big" id="money-counter">125,000</div>
+                    <span style="font-size:30px; font-weight:800; color:#2563eb; margin-bottom:15px; margin-left:10px;">VNĐ</span>
+                </div>
+                
+                <div class="status-badge-live" id="status-label">
+                    <div class="dot-blink"></div> <span data-i18n="status_safe">Trạng thái: Đang giải ngân an toàn</span>
+                </div>
+            </div>
+
+            <div class="progress-card">
+                <div class="progress-header">
+                    <span data-i18n="monthly_progress">Tiến độ thanh toán tháng (Monthly Progress)</span>
+                    <span style="color:#2563eb;"><span data-i18n="week">Tuần</span> 2/4 <span style="color:var(--text-sub); margin-left:8px;">50%</span></span>
+                </div>
+                <div class="bar-bg">
+                    <div class="bar-fill"></div>
+                </div>
+            </div>
+
+            <div class="flow-visual">
+                <div class="flow-node">
+                    <div class="node-icon-box" style="background:#eff6ff;">
+                        <i data-lucide="users" style="width:32px; height:32px;"></i>
+                    </div>
+                    <span class="node-label">Member Pool</span>
+                </div>
+
+                <div class="flow-connector">
+                    <a href="AI_AGENT_QUETHOADON.html" class="flow-ai-badge hover:bg-blue-600 hover:text-white transition-all cursor-pointer no-underline">
+                        <i data-lucide="cpu" style="width:14px;"></i> [AI VERIFIED]
+                    </a>
+                    <div class="flow-coin" style="animation-delay: 0s;"></div>
+                    <div class="flow-coin" style="animation-delay: 1.2s;"></div>
+                </div>
+
+                <div class="flow-node">
+                    <div class="node-icon-box" style="background:#2563eb; color:white; border:none; box-shadow: 0 10px 20px rgba(37, 99, 235, 0.4);">
+                        <i data-lucide="wallet" style="width:32px; height:32px;"></i>
+                    </div>
+                    <span class="node-label">Leader Wallet</span>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- CỘT 3: CHAT -->
+        <aside class="col-chat">
+            <div class="chat-header">
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <div style="width:8px; height:8px; background:var(--success); border-radius:50%;"></div>
+                    <span>Group Chat & Support</span>
+                </div>
+                <i data-lucide="more-horizontal" style="color:var(--text-sub); cursor:pointer;"></i>
+            </div>
+            
+            <div class="chat-body" id="chat-container">
+                <!-- Tin nhắn AI sẽ được load lại theo ngôn ngữ trong script -->
+            </div>
+
+            <div class="chat-footer">
+                <div class="input-wrapper">
+                    <button class="btn-icon" id="btn-upload-img" onclick="reqUpload()"><i data-lucide="image"></i></button>
+                    <input type="text" class="chat-input" id="chat-input" onkeypress="handleEnter(event)">
+                    <button class="btn-icon btn-send" onclick="sendMsg()"><i data-lucide="send" style="width:18px;"></i></button>
+                </div>
+            </div>
+        </aside>
+
+    </div>
+
+    <script>
+        // --- MULTI-LANGUAGE SYSTEM ---
+        const translations = {
+            vi: {
+                back_dashboard: "Quay lại Dashboard",
+                service_info_title: "Thông tin gói dịch vụ",
+                total_value: "Tổng giá trị gói:",
+                members_count: "Số thành viên:",
+                escrow_label: "Ký quỹ:",
+                per_person: "/người",
+                remaining_time: "Thời hạn còn lại:",
+                days_left: "20 ngày",
+                days: "ngày",
+                account_label: "Tài khoản (User):",
+                password_label: "Mật khẩu (Password):",
+                ai_verified: "(Đã xác thực bởi AI)",
+                leader_title: "Người lập quỹ (Leader)",
+                reputation: "Uy tín",
+                rating_title: "Đánh giá chất lượng Leader",
+                weekly_disbursement: "Tổng giải ngân tuần này (Weekly Disbursement)",
+                status_safe: "Trạng thái: Đang giải ngân an toàn",
+                monthly_progress: "Tiến độ thanh toán tháng (Monthly Progress)",
+                week: "Tuần",
+                chat_placeholder: "Nhập tin nhắn...",
+                ai_welcome: "Tôi đang giám sát dòng tiền. Nếu mật khẩu sai hoặc có lỗi, hãy gửi ảnh chụp màn hình vào đây ngay. Tôi sẽ xử lý!",
+                ai_ask_img: "Vui lòng nhấn vào biểu tượng hình ảnh <i data-lucide='image' style='width:12px; display:inline;'></i> để gửi bằng chứng xác thực lỗi.",
+                msg_evidence_sent: "Đã gửi: evidence_error.png",
+                ai_analyzing: "Đang phân tích ảnh (OCR)... <br>⚠️ Phát hiện thông báo: <b>\"Mật khẩu không đúng\"</b>.",
+                panic_title: "CẢNH BÁO RỦI RO",
+                panic_question: "Bạn có muốn đóng băng tiền cọc của Leader không?",
+                btn_freeze: "KHÓA TIỀN",
+                btn_ignore: "Bỏ qua",
+                ai_suggest_stop: "Hệ thống đề xuất DỪNG THANH TOÁN ngay lập tức. Các thành viên vui lòng biểu quyết:",
+                status_frozen: "ĐÃ KHÓA QUỸ (PAYMENT FROZEN)",
+                ai_final_stop: "<div style='color:#e11d48; font-weight:700;'>⛔ ĐÃ QUYẾT ĐỊNH: DỪNG DÒNG TIỀN!</div> Đạt 3/4 phiếu bầu. Tiền trong Smart Contract đã được bảo toàn. Leader đã bị cắt quyền truy cập quỹ.",
+                ai_ignored: "Bạn đã chọn 'Bỏ qua'."
+            },
+            en: {
+                back_dashboard: "Back to Dashboard",
+                service_info_title: "Service Plan Info",
+                total_value: "Total Plan Value:",
+                members_count: "Members:",
+                escrow_label: "Escrow Deposit:",
+                per_person: "/person",
+                remaining_time: "Remaining Time:",
+                days_left: "20 days",
+                days: "days",
+                account_label: "Account (User):",
+                password_label: "Password:",
+                ai_verified: "(AI Verified)",
+                leader_title: "Fund Leader",
+                reputation: "Reputation",
+                rating_title: "Rate Leader Quality",
+                weekly_disbursement: "Weekly Disbursement",
+                status_safe: "Status: Safe Disbursement in Progress",
+                monthly_progress: "Monthly Progress",
+                week: "Week",
+                chat_placeholder: "Type a message...",
+                ai_welcome: "I am monitoring the cash flow. If the password is wrong or there is an error, send a screenshot here immediately. I'll handle it!",
+                ai_ask_img: "Please click the image icon <i data-lucide='image' style='width:12px; display:inline;'></i> to send proof for verification.",
+                msg_evidence_sent: "Sent: evidence_error.png",
+                ai_analyzing: "Analyzing image (OCR)... <br>⚠️ Detected message: <b>\"Incorrect password\"</b>.",
+                panic_title: "RISK ALERT",
+                panic_question: "Do you want to freeze the Leader's deposit?",
+                btn_freeze: "FREEZE FUNDS",
+                btn_ignore: "Ignore",
+                ai_suggest_stop: "System suggests STOPPING PAYMENT immediately. Members, please vote:",
+                status_frozen: "PAYMENT FROZEN",
+                ai_final_stop: "<div style='color:#e11d48; font-weight:700;'>⛔ DECISION: STOP CASH FLOW!</div> 3/4 votes reached. Smart Contract funds secured. Leader access revoked.",
+                ai_ignored: "You selected 'Ignore'."
+            }
+        };
+
+        let currentLang = localStorage.getItem('trustflow_lang') || 'vi';
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('trustflow_lang', lang);
+            
+            // Update buttons state
+            document.getElementById('btn-lang-vi').classList.toggle('active', lang === 'vi');
+            document.getElementById('btn-lang-en').classList.toggle('active', lang === 'en');
+
+            // Update static elements
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang][key]) {
+                    el.innerHTML = translations[lang][key];
+                }
+            });
+
+            // Update Input Placeholder
+            document.getElementById('chat-input').placeholder = translations[lang].chat_placeholder;
+
+            // Update dynamic parts if they exist
+            if (!isStopped) {
+                statusLabel.innerHTML = `<div class="dot-blink"></div> ${translations[lang].status_safe}`;
+            } else {
+                statusLabel.innerHTML = `<i data-lucide="lock" style="width:14px;"></i> ${translations[lang].status_frozen}`;
+            }
+
+            // Clear and reload welcome message if chat is empty
+            const chatContainer = document.getElementById('chat-container');
+            if (chatContainer.children.length <= 1) {
+                chatContainer.innerHTML = '';
+                addMsg('ai', 'TRUSTFLOW AI', translations[lang].ai_welcome);
+            }
+
+            lucide.createIcons();
+        }
+
+        // --- OLD LOGIC PRESERVED ---
+        lucide.createIcons();
+        let isStopped = false;
+        let voteCount = 2;
+        const monitorArea = document.getElementById('monitor-area');
+        const statusLabel = document.getElementById('status-label');
+
+        function handleEnter(e) { if(e.key === 'Enter') sendMsg(); }
+
+        function sendMsg() {
+            const input = document.getElementById('chat-input');
+            const txt = input.value.trim();
+            if(!txt) return;
+
+            addMsg('user', currentLang === 'vi' ? 'Tôi' : 'Me', txt);
+            input.value = '';
+
+            const keywords = ['lỗi', 'sai', 'không vào được', 'pass', 'đổi', 'hack', 'error', 'wrong', 'password'];
+            if(keywords.some(k => txt.toLowerCase().includes(k)) && !isStopped) {
+                setTimeout(() => {
+                    addMsg('ai', 'TrustFlow AI', translations[currentLang].ai_ask_img);
+                    lucide.createIcons();
+                }, 800);
+            }
+        }
+
+        function reqUpload() {
+            if(isStopped) return;
+            addMsg('user', currentLang === 'vi' ? 'Tôi' : 'Me', `<div style="display:flex; align-items:center; gap:6px; font-style:italic; color:#fff;"><i data-lucide="image" style="width:14px;"></i> ${translations[currentLang].msg_evidence_sent}</div>`);
+            setTimeout(() => triggerPanicScenario(), 1000);
+        }
+
+        function triggerPanicScenario() {
+            addMsg('ai', 'TrustFlow AI', translations[currentLang].ai_analyzing);
+            setTimeout(() => {
+                const voteHtml = `
+                    <div class="vote-card">
+                        <div class="vote-title"><i data-lucide="alert-triangle" style="width:14px;"></i> ${translations[currentLang].panic_title}</div>
+                        <div class="vote-question">${translations[currentLang].panic_question}</div>
+                        <div class="vote-option" id="btn-stop-vote" onclick="voteAction()">
+                            <span>✋ ${translations[currentLang].btn_freeze}</span>
+                            <span id="vote-count-text">(2/4)</span>
+                        </div>
+                        <div class="vote-option vote-option-ignore" onclick="ignoreIssue()">
+                            <span>${translations[currentLang].btn_ignore}</span>
+                        </div>
+                    </div>
+                `;
+                addMsg('ai', 'TrustFlow AI', `${translations[currentLang].ai_suggest_stop}<br>${voteHtml}`);
+                lucide.createIcons(); 
+            }, 2000);
+        }
+
+        function voteAction() {
+            if(isStopped) return;
+            if(voteCount >= 3) return;
+            voteCount++;
+            const voteText = document.getElementById('vote-count-text');
+            const btn = document.getElementById('btn-stop-vote');
+            if(voteText) voteText.innerText = `(${voteCount}/4)`;
+            if(voteCount >= 3) {
+                btn.style.background = '#e11d48';
+                btn.style.color = 'white';
+                setTimeout(() => confirmStop(), 500);
+            }
+        }
+
+        function confirmStop() {
+            isStopped = true;
+            monitorArea.classList.add('state-stopped');
+            statusLabel.className = 'status-badge-live'; 
+            statusLabel.style.background = '#fee2e2';
+            statusLabel.style.color = '#ef4444';
+            statusLabel.innerHTML = `<i data-lucide="lock" style="width:14px;"></i> ${translations[currentLang].status_frozen}`;
+            addMsg('ai', 'TrustFlow AI', translations[currentLang].ai_final_stop);
+            lucide.createIcons();
+        }
+
+        function ignoreIssue() {
+            addMsg('ai', 'TrustFlow AI', translations[currentLang].ai_ignored);
+        }
+
+        function addMsg(role, name, htmlContent) {
+            const box = document.getElementById('chat-container');
+            const div = document.createElement('div');
+            div.className = `msg msg-${role}`;
+            let icon = role === 'ai' ? 'bot' : 'user';
+            div.innerHTML = `<div class="msg-header"><i data-lucide="${icon}" style="width:12px;"></i> ${name}</div>${htmlContent}`;
+            box.appendChild(div);
+            box.scrollTop = box.scrollHeight;
+            lucide.createIcons();
+        }
+
+        function rateLeader(n) {
+            const stars = document.querySelectorAll('.star-icon');
+            stars.forEach((s, i) => {
+                if(i < n) s.classList.add('active');
+                else s.classList.remove('active');
+            });
+        }
+
+        const mockPools = [
+            { id: 1, name: "Chat GPT Plus", totalPrice: 500000, maxMembers: 8, currentMembers: 3, leaderId: "Duy_Admin", status: "active", leaderSbt: "4.8" },
+            { id: 2, name: "Adobe Creative Cloud All Apps", totalPrice: 1300000, maxMembers: 2, currentMembers: 1, leaderId: "Kiet_User", status: "active", leaderSbt: "4.2" },
+            { id: 1736500000000, name: "Youtube Premium", totalPrice: 149000, maxMembers: 5, currentMembers: 1, leaderId: "Hoang_User_99", type: "Gói Cá Nhân" }
+        ];
+
+        function loadDisbursementData() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const poolId = urlParams.get('id');
+            
+            // LẤY DỮ LIỆU TỪ LOCALSTORAGE
+            const localPools = JSON.parse(localStorage.getItem('trustflow_pools') || "[]");
+            const pool = localPools.find(p => p.id == poolId);
+
+            if (pool) {
+                // Cập nhật Tên dịch vụ
+                document.getElementById('display-service-name').innerText = pool.name;
+                document.getElementById('service-icon-box').innerText = pool.name[0];
+                
+                // Cập nhật Tổng tiền
+                document.getElementById('display-total-price').innerText = pool.totalPrice.toLocaleString() + "đ";
+                
+                // Cập nhật Số thành viên
+                document.getElementById('display-members').innerHTML = 
+                    `${pool.currentMembers} / ${pool.maxMembers} <i data-lucide="users" style="width:14px; display:inline; vertical-align:middle; margin-left:4px;"></i>`;
+                
+                // Cập nhật Tiền ký quỹ mỗi người
+                const perPerson = Math.round(pool.totalPrice / pool.maxMembers);
+                const lang = currentLang; // Sử dụng biến ngôn ngữ hiện tại
+                const perPersonText = perPerson.toLocaleString() + "đ" + 
+                    `<span style="font-size:11px; font-weight:600; color:var(--text-sub);">/${translations[lang].per_person}</span>`;
+                document.getElementById('display-escrow-per-person').innerHTML = perPersonText;
+
+                // Cập nhật tên Leader
+                document.getElementById('display-leader-name').innerText = pool.leaderId;
+
+                // Cập nhật con số hiển thị lớn ở giữa màn hình
+                document.getElementById('money-counter').innerText = perPerson.toLocaleString();
+
+                lucide.createIcons();
+            } else {
+                alert("Không tìm thấy dữ liệu nhóm này!");
+            }
+        }
+
+        // Initialize
+        window.addEventListener('DOMContentLoaded', () => {
+            loadDisbursementData();
+            setLanguage(currentLang);
+        });
+    </script>
+</body>
+</html>

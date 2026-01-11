@@ -1,0 +1,62 @@
+[
+  {
+    "user_id": "U001",
+    "name": "Nguyễn Minh Anh",
+    "role": "Leader",
+    "reputation_score": 4.5,
+    "completed_pools": 6,
+    "sbt_level": "Trusted",
+    "password_hash": "trustU001",
+    "email": "minhanh@gmail.com"
+  },
+  {
+    "user_id": "U002",
+    "name": "Trần Quốc Huy",
+    "role": "Member",
+    "reputation_score": null,
+    "completed_pools": null,
+    "sbt_level": null,
+    "password_hash": "trustU002",
+    "email": "huy@gmail.com"
+  },
+  {
+    "user_id": "U003",
+    "name": "Lê Hoàng Nam",
+    "role": "Leader",
+    "reputation_score": 3.8,
+    "completed_pools": 2,
+    "sbt_level": "New",
+    "password_hash": "trustU003",
+    "email": "nam@gmail.com"
+  },
+  {
+    "user_id": "U004",
+    "name": "Phạm Thu Trang",
+    "role": "Member",
+    "reputation_score": null,
+    "completed_pools": null,
+    "sbt_level": null,
+    "password_hash": "trustU004",
+    "email": "trang@gmail.com"
+  },
+  {
+    "user_id": "U005",
+    "name": "Hoàng Đức Long",
+    "role": "Leader",
+    "reputation_score": 4.1,
+    "completed_pools": 4,
+    "sbt_level": "Trusted",
+    "password_hash": "trustU005",
+    "email": "long@gmail.com"
+  },
+  {
+    "user_id": "U006",
+    "name": "hehee",
+    "role": "Member",
+    "reputation_score": null,
+    "completed_pools": null,
+    "sbt_level": null,
+    "password_hash": "trustU006",
+    "email": "he@gmail.com"
+  }
+]
